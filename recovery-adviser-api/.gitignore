@@ -1,0 +1,51 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Logs
+*.log
+
+# Compiled object files
+*.o
+*.a
+*.lo
+*.la
+*.al
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.coverprofile
+
+# Temporary build directory
+/_build
+
+# Output of the go coverage tool
+*.out
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*~
+
+# Configuration files
+config.json
+
+# Environment variables
+.env
+
+# Dependency directories
+node_modules/
+

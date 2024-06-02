@@ -1,0 +1,6 @@
+{
+  "database": {
+    "type": "oracle",
+    "dsn": "user:password@oracle-host:1521/sid"
+  }
+}

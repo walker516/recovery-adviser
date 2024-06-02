@@ -1,0 +1,27 @@
+# Build the Go application
+FROM golang:1.18-alpine AS builder
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /server ./cmd/server
+
+FROM alpine:latest
+
+WORKDIR /root/
+
+COPY --from=builder /server .
+
+COPY ./config.dev.json /root/config.json
+COPY ./sql /root/sql
+
+EXPOSE 8080
+
+ENV CONFIG_FILE_PATH=/root/config.json
+ENV SQL_QUERY_PATH=/root/sql
+
+CMD ["./server"]

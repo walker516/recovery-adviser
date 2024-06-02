@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile.prod
+    container_name: recovery_app_prod
+    ports:
+      - "8080:8080"
+    networks:
+      - recovery-net
+
+networks:
+  recovery-net:
+    driver: bridge

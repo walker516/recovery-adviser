@@ -1,0 +1,6 @@
+{
+  "database": {
+    "type": "mysql",
+    "dsn": "root:root@tcp(mysql:3306)/recovery?charset=utf8&parseTime=True&loc=Local"
+  }
+}

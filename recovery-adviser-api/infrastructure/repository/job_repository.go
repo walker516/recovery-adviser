@@ -4,6 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"path/filepath"
+	"recovery-adviser-api/config"
 	"recovery-adviser-api/domain"
 	"strings"
 )
@@ -16,26 +19,29 @@ type JobRepository struct {
 
 // NewJobRepositoryの新規作成関数
 func NewJobRepository(db *sql.DB, dbType string) (*JobRepository, error) {
-	queryPath := fmt.Sprintf("infrastructure/sql/%s/job_queries.sql", dbType)
-	return &JobRepository{db: db, queryPath: queryPath}, nil
+	queryPath := filepath.Join(config.ConfigData.SQLQueryPath,dbType, "job_queries.sql")
+return &JobRepository{db: db, queryPath: queryPath}, nil
 }
 
 // loadQueryは、指定されたクエリキーに対応するSQLクエリをファイルから読み込む
 func (r *JobRepository) loadQuery(queryKey string) (string, error) {
-	data, err := ioutil.ReadFile(r.queryPath)
-	if err != nil {
-		return "", fmt.Errorf("failed to read query file: %v", err)
-	}
+    data, err := ioutil.ReadFile(r.queryPath)
+    if err != nil {
+        return "", fmt.Errorf("failed to read query file: %v", err)
+    }
 
-	queries := strings.Split(string(data), ";")
-	for _, query := range queries {
-		if strings.HasPrefix(query, "-- "+queryKey) {
-			return strings.TrimSpace(query[len(queryKey)+3:]), nil
-		}
-	}
+    queries := strings.Split(string(data), "--")
+    for _, query := range queries {
+        query = strings.TrimSpace(query)
+        if strings.HasPrefix(query, queryKey) {
+            return strings.TrimSpace(query[len(queryKey):]), nil
+        }
+    }
 
-	return "", fmt.Errorf("query key %s not found in file", queryKey)
+    return "", fmt.Errorf("query key %s not found in file", queryKey)
 }
+
+
 
 // GetRecoveryJobStatusは、指定された部品番号に対応するリカバリージョブのステータスを取得する
 func (r *JobRepository) GetRecoveryJobStatus(seppenbuban string) (*domain.JobStatus, error) {
@@ -62,40 +68,46 @@ func (r *JobRepository) GetRecoveryJobStatus(seppenbuban string) (*domain.JobSta
 
 // GetJobQueueは、指定されたプロセスオーダーと部品番号に対応するジョブキューを取得する
 func (r *JobRepository) GetJobQueue(processOrder, seppenbuban string) (*domain.JobQueue, error) {
-	query, err := r.loadQuery("GetJobQueueByProcessOrder")
-	if err != nil {
-		return nil, err
-	}
+    query, err := r.loadQuery("GetJobQueueByProcessOrder")
+    if err != nil {
+        return nil, fmt.Errorf("failed to load query: %v", err)
+    }
 
-	var jobQueue domain.JobQueue
-	err = r.db.QueryRow(query, processOrder).Scan(
-		&jobQueue.ProcessOrder,
-		&jobQueue.Status,
-		&jobQueue.Host,
-		&jobQueue.RegisterTimestamp,
-		&jobQueue.Parameter,
-	)
-	if err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
-	if err == sql.ErrNoRows && seppenbuban != "" {
-		query, err = r.loadQuery("GetJobQueueBySeppenbuban")
-		if err != nil {
-			return nil, err
-		}
-		err = r.db.QueryRow(query, seppenbuban).Scan(
-			&jobQueue.ProcessOrder,
-			&jobQueue.Status,
-			&jobQueue.Host,
-			&jobQueue.RegisterTimestamp,
-			&jobQueue.Parameter,
-		)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &jobQueue, nil
+    var jobQueue domain.JobQueue
+    err = r.db.QueryRow(query, processOrder).Scan(
+        &jobQueue.ProcessOrder,
+        &jobQueue.Status,
+        &jobQueue.Host,
+        &jobQueue.RegisterTimestamp,
+        &jobQueue.Parameter,
+    )
+    if err != nil && err != sql.ErrNoRows {
+        return nil, fmt.Errorf("query execution failed: %v", err)
+    }
+    if err == sql.ErrNoRows && seppenbuban != "" {
+        query, err = r.loadQuery("GetJobQueueBySeppenbuban")
+        if err != nil {
+            return nil, fmt.Errorf("failed to load query: %v", err)
+        }
+        err = r.db.QueryRow(query, seppenbuban).Scan(
+            &jobQueue.ProcessOrder,
+            &jobQueue.Status,
+            &jobQueue.Host,
+            &jobQueue.RegisterTimestamp,
+            &jobQueue.Parameter,
+        )
+        if err != nil {
+            return nil, fmt.Errorf("query execution failed: %v", err)
+        }
+    }
+    if err == sql.ErrNoRows {
+        log.Printf("No job queue found for process order: %s and seppenbuban: %s", processOrder, seppenbuban)
+        return nil, nil
+    }
+    log.Printf("Job queue found: %+v", jobQueue)
+    return &jobQueue, nil
 }
+
 
 // UpdateJobQueueは、指定されたプロセスオーダーのジョブキューを更新する
 func (r *JobRepository) UpdateJobQueue(processOrder string, jobQueue domain.JobQueue) error {

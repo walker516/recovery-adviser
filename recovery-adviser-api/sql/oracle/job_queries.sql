@@ -11,7 +11,7 @@ WITH OrderedJobs AS (
         original_schema.ok_101_job_queue
     WHERE 
         parameter LIKE (
-            '%' || (SELECT kbuban FROM original_schema.OK_PART WHERE seppenbuban = :1) || '%'
+            '%' || (SELECT kbuban FROM original_schema.ok_100_part WHERE seppenbuban = :1) || '%'
         )
 )
 SELECT
@@ -33,7 +33,7 @@ WHERE process_order = :1;
 -- GetJobQueueBySeppenbuban
 SELECT process_order, status, host, register_timestamp, parameter 
 FROM original_schema.ok_101_job_queue 
-WHERE parameter LIKE '%' || (SELECT kbuban FROM original_schema.OK_PART WHERE seppenbuban = :1) || '%' 
+WHERE parameter LIKE '%' || (SELECT kbuban FROM original_schema.ok_100_part WHERE seppenbuban = :1) || '%' 
 ORDER BY register_timestamp DESC 
 FETCH FIRST 1 ROW ONLY;
 
@@ -44,9 +44,9 @@ WHERE process_order = :3;
 
 -- GetJobLock
 SELECT process_order, lock_timestamp 
-FROM original_schema.OK_JOB_LOCK 
+FROM original_schema.ok_102_job_lock 
 WHERE process_order = :1;
 
 -- DeleteJobLock
-DELETE FROM original_schema.OK_JOB_LOCK 
+DELETE FROM original_schema.ok_102_job_lock 
 WHERE process_order = :1;

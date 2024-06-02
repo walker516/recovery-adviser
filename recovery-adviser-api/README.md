@@ -1,6 +1,6 @@
 # RecoveryAdviserAPI
 
-recovery-adviser-api は、部品情報とジョブ情報を管理する Go 言語のアプリケーションです。この README では、プロジェクトのセットアップ手順とディレクトリ構造を説明します。
+recovery-adviser-api は、部品情報とジョブ情報を管理する。
 
 ## ディレクトリ構造
 
@@ -12,11 +12,21 @@ recovery-adviser-api/
 │       └── main.go
 ├── config
 │   └── config.go
-├── config.json
+├── config.dev.json
+├── config.prod.json
 ├── domain
 │   ├── job.go
 │   ├── part.go
 │   └── repository.go
+├── docker
+│   ├── Dockerfile.dev
+│   ├── Dockerfile.prod
+│   ├── mysql
+│   │   └── init
+│   │       ├── 01_create_tables.sql
+│   │       └── 02_insert_sample_data.sql
+│   ├── docker-compose.dev.yml
+│   └── docker-compose.prod.yml
 ├── go.mod
 ├── go.sum
 ├── infrastructure
@@ -49,6 +59,7 @@ recovery-adviser-api/
 
 - Go 1.16 以上がインストールされていること
 - MySQL または Oracle データベースがセットアップされていること
+- Docker および Docker Compose がインストールされていること
 
 ### プロジェクトのクローン
 
@@ -65,20 +76,67 @@ go mod tidy
 
 ### 設定ファイルの作成
 
-`config.json`ファイルを作成し、データベース接続情報を設定します。例:
+環境ごとに適切な `config.json` ファイルを作成し、データベース接続情報を設定します。
+
+- 開発環境用: `config.dev.json`
+- 本番環境用: `config.prod.json`
+
+例:
 
 ```json
 {
   "database": {
     "type": "oracle",
-    "dsn": "oracle://username:password@hostname:port/sid"
+    "dsn": "user:password@oracle-host:1521/sid"
   }
 }
 ```
 
 ### データベーススキーマの準備
 
-`sql/mysql`または`sql/oracle`ディレクトリ内の SQL スクリプトを使用して、データベーススキーマを作成します。
+`docker/mysql/init` ディレクトリ内の SQL スクリプトを使用して、データベーススキーマを作成します。
+
+### Docker を使用した環境のセットアップ
+
+#### 開発環境
+
+開発環境用のコンテナを起動します。
+
+```sh
+make up
+```
+
+データベースのマイグレーションを実行します。
+
+```sh
+make migrate
+```
+
+サンプルデータを挿入します。
+
+```sh
+make seed
+```
+
+環境を停止する場合は以下のコマンドを使用します。
+
+```sh
+make down
+```
+
+#### 本番環境
+
+本番環境用のコンテナを起動します。
+
+```sh
+make up-prod
+```
+
+環境を停止する場合は以下のコマンドを使用します。
+
+```sh
+make down-prod
+```
 
 ### サーバーの起動
 
@@ -104,3 +162,4 @@ go run cmd/server/main.go
 - Go
 - Echo (Web フレームワーク)
 - MySQL または Oracle データベース
+- Docker & Docker Compose

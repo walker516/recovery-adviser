@@ -10,7 +10,7 @@ WITH OrderedJobs AS (
     FROM 
         original_schema.ok_101_job_queue
     WHERE 
-        parameter LIKE CONCAT('%', (SELECT kbuban FROM original_schema.OK_PART WHERE seppenbuban = ?), '%')
+        parameter LIKE CONCAT('%', (SELECT kbuban FROM original_schema.ok_100_part WHERE seppenbuban = ?), '%')
 )
 SELECT
     MAX(CASE WHEN row_num = 1 THEN process_order END) AS latest_process_order,
@@ -31,7 +31,7 @@ WHERE process_order = ?;
 -- GetJobQueueBySeppenbuban
 SELECT process_order, status, host, register_timestamp, parameter 
 FROM original_schema.ok_101_job_queue 
-WHERE parameter LIKE CONCAT('%', (SELECT kbuban FROM original_schema.OK_PART WHERE seppenbuban = ?), '%') 
+WHERE parameter LIKE CONCAT('%', (SELECT kbuban FROM original_schema.ok_100_part WHERE seppenbuban = ?), '%') 
 ORDER BY register_timestamp DESC 
 LIMIT 1;
 
@@ -42,9 +42,9 @@ WHERE process_order = ?;
 
 -- GetJobLock
 SELECT process_order, lock_timestamp 
-FROM original_schema.OK_JOB_LOCK 
+FROM original_schema.ok_102_job_lock 
 WHERE process_order = ?;
 
 -- DeleteJobLock
-DELETE FROM original_schema.OK_JOB_LOCK 
+DELETE FROM original_schema.ok_102_job_lock 
 WHERE process_order = ?;

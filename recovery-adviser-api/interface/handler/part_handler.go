@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-
 	"recovery-adviser-api/usecase"
 
 	"github.com/labstack/echo/v4"
@@ -24,7 +23,11 @@ func (ph *PartHandler) GetPartInfo(c echo.Context) error {
 
 	partInfo, err := ph.PartUseCase.GetPartInfo(seppenbuban)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "No part information found")
+		return c.String(http.StatusInternalServerError, "Database query error: "+err.Error())
+	}
+
+	if partInfo == nil {
+		return c.String(http.StatusNotFound, "No part information found")
 	}
 
 	return c.JSON(http.StatusOK, partInfo)

@@ -26,9 +26,11 @@ func NewRouter(db *sql.DB) *echo.Echo {
 	partUseCase := usecase.NewPartUseCase(partRepo)
 	jobUseCase := usecase.NewJobUseCase(jobRepo)
 
+	sysdateHandler := handler.NewSysdateHandler()
 	partHandler := handler.NewPartHandler(partUseCase)
 	jobHandler := handler.NewJobHandler(jobUseCase)
 
+	e.GET("/sysdate", sysdateHandler.GetSysdate)
 	e.GET("/part/:seppenbuban", partHandler.GetPartInfo)
 	e.GET("/recovery-job-status/:seppenbuban", jobHandler.GetRecoveryJobStatus)
 	e.GET("/job-queue/:process_order", jobHandler.GetJobQueue)

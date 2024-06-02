@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
+	"recovery-adviser-api/config"
 	"recovery-adviser-api/domain"
 	"strings"
 )
@@ -14,7 +16,7 @@ type PartRepository struct {
 }
 
 func NewPartRepository(db *sql.DB, dbType string) (*PartRepository, error) {
-	queryPath := fmt.Sprintf("infrastructure/sql/%s/part_queries.sql", dbType)
+	queryPath := filepath.Join(config.ConfigData.SQLQueryPath,dbType, "part_queries.sql")
 	return &PartRepository{db: db, queryPath: queryPath}, nil
 }
 

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 	"recovery-adviser-api/usecase"
 
@@ -20,14 +21,16 @@ func NewPartHandler(pu usecase.PartUseCase) *PartHandler {
 // 部品情報を取得するハンドラ関数
 func (ph *PartHandler) GetPartInfo(c echo.Context) error {
 	seppenbuban := c.Param("seppenbuban")
+	usrID := c.QueryParam("usr_id")
+	log.Printf("GetPartInfo called by user: %s", usrID)
 
-	partInfo, err := ph.PartUseCase.GetPartInfo(seppenbuban)
+	partInfo, err := ph.PartUseCase.GetPartInfo(seppenbuban, usrID)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Database query error: "+err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get part information: "+err.Error())
 	}
 
 	if partInfo == nil {
-		return c.String(http.StatusNotFound, "No part information found")
+		return echo.NewHTTPError(http.StatusNotFound, "No part information found")
 	}
 
 	return c.JSON(http.StatusOK, partInfo)

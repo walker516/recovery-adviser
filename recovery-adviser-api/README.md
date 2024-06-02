@@ -150,8 +150,6 @@ make down-prod
 go run cmd/server/main.go
 ```
 
-サーバーはデフォルトで`http://localhost:8080`でリッスンします。
-
 ### エンドポイント
 
 - `GET /part/:seppenbuban`: 部品情報を取得します。
@@ -181,7 +179,7 @@ go run cmd/server/main.go
 - `PUT /job-queue/:process_order`: ジョブキューを更新します。
 
   ```sh
-  curl -X PUT "http://localhost:8080/job-queue/PO123" -H "Content-Type: application/json" -d '{"status": "3", "host": "host2"}'
+  curl -X PUT "http://localhost:8080/job-queue/PO123" -H "Content-Type: application/json" -d '{"status": 3, "host": "host2"}'
   ```
 
 - `GET /job-lock/:process_order`: ジョブロックを取得します。
@@ -194,10 +192,3 @@ go run cmd/server/main.go
   ```sh
   curl -X DELETE "http://localhost:8080/job-lock/PO123"
   ```
-
-## 使用技術
-
-- Go
-- Echo (Web フレームワーク)
-- MySQL または Oracle データベース
-- Docker & Docker Compose

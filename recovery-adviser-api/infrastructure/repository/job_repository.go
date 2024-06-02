@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"path/filepath"
 	"recovery-adviser-api/config"
 	"recovery-adviser-api/domain"
@@ -49,7 +48,7 @@ func (r *JobRepository) GetRecoveryJobStatus(seppenbuban string) (*domain.JobSta
 	}
 
 	var jobStatus domain.JobStatus
-	err = r.db.QueryRow(query, seppenbuban).Scan(
+	if err := r.db.QueryRow(query, seppenbuban).Scan(
 		&jobStatus.LatestProcessOrder,
 		&jobStatus.LatestRegisterTimestamp,
 		&jobStatus.LatestHost,
@@ -57,9 +56,11 @@ func (r *JobRepository) GetRecoveryJobStatus(seppenbuban string) (*domain.JobSta
 		&jobStatus.NeedsDetailedReview,
 		&jobStatus.JobNotCompletedCorrectly,
 		&jobStatus.ErrorOccurredDuringJob,
-	)
-	if err != nil {
-		return nil, err
+	); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("query execution failed: %v", err)
 	}
 	return &jobStatus, nil
 }
@@ -110,7 +111,6 @@ func (r *JobRepository) GetJobQueue(processOrder, seppenbuban string) (*domain.J
 		return nil, fmt.Errorf("query execution failed: %v", err)
 	}
 
-	log.Printf("Job queue found: %+v", jobQueue)
 	return &jobQueue, nil
 }
 
@@ -121,8 +121,10 @@ func (r *JobRepository) UpdateJobQueue(processOrder string, jobQueue domain.JobQ
 		return err
 	}
 
-	_, err = r.db.Exec(query, jobQueue.Status, jobQueue.Host, processOrder)
-	return err
+	if _, err := r.db.Exec(query, jobQueue.Status, jobQueue.Host, processOrder); err != nil {
+		return fmt.Errorf("failed to update job queue: %v", err)
+	}
+	return nil
 }
 
 // GetJobLockは、指定されたプロセスオーダーに対応するジョブロックを取得する
@@ -133,9 +135,11 @@ func (r *JobRepository) GetJobLock(processOrder string) (*domain.JobLock, error)
 	}
 
 	var jobLock domain.JobLock
-	err = r.db.QueryRow(query, processOrder).Scan(&jobLock.ProcessOrder, &jobLock.LockTimestamp)
-	if err != nil {
-		return nil, err
+	if err := r.db.QueryRow(query, processOrder).Scan(&jobLock.ProcessOrder, &jobLock.LockTimestamp); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("query execution failed: %v", err)
 	}
 	return &jobLock, nil
 }
@@ -147,6 +151,8 @@ func (r *JobRepository) DeleteJobLock(processOrder string) error {
 		return err
 	}
 
-	_, err = r.db.Exec(query, processOrder)
-	return err
+	if _, err := r.db.Exec(query, processOrder); err != nil {
+		return fmt.Errorf("failed to delete job lock: %v", err)
+	}
+	return nil
 }

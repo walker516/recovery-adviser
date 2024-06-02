@@ -14,7 +14,7 @@ type JobStatus struct {
 // JobQueueの構造体定義
 type JobQueue struct {
 	ProcessOrder     string `json:"process_order"`
-	Status           string `json:"status"`
+	Status           int `json:"status"`
 	Host             string `json:"host"`
 	RegisterTimestamp string `json:"register_timestamp"`
 	Parameter        string `json:"parameter"`

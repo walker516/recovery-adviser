@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS original_schema.ok_100_part (
 
 CREATE TABLE IF NOT EXISTS original_schema.ok_101_job_queue (
     process_order VARCHAR(255) PRIMARY KEY,
-    status VARCHAR(255),
+    status INT,
     host VARCHAR(255),
     register_timestamp TIMESTAMP,
     parameter VARCHAR(255)

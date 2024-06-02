@@ -172,12 +172,6 @@ go run cmd/server/main.go
   curl -X GET "http://localhost:8080/job-queue/PO123"
   ```
 
-- `GET /job-queue/:process_order`: ジョブキューを取得します。
-
-  ```sh
-  curl -X GET "http://localhost:8080/job-queue/P0123"
-  ```
-
 - `GET /job-queue?seppenbuban=:seppenbuban`: 部品番号でジョブキューを取得します。
 
   ```sh
@@ -187,7 +181,7 @@ go run cmd/server/main.go
 - `PUT /job-queue/:process_order`: ジョブキューを更新します。
 
   ```sh
-  curl -X PUT "http://localhost:8080/job-queue/PO123" -H "Content-Type: application/json" -d '{"status": "completed", "host": "host2"}'
+  curl -X PUT "http://localhost:8080/job-queue/PO123" -H "Content-Type: application/json" -d '{"status": "3", "host": "host2"}'
   ```
 
 - `GET /job-lock/:process_order`: ジョブロックを取得します。

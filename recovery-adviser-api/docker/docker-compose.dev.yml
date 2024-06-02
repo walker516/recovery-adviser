@@ -1,9 +1,9 @@
 services:
-  app:
+  api:
     build:
       context: ..
       dockerfile: ./docker/Dockerfile.dev
-    container_name: recovery_app_dev
+    container_name: recovery_api_dev
     ports:
       - "8080:8080"
     depends_on:
@@ -26,7 +26,4 @@ services:
 
 networks:
   recovery-net:
-    driver: bridge
-
-volumes:
-  mysql_data:
+    external: true

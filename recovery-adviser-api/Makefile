@@ -1,4 +1,4 @@
-.PHONY: help up down migrate seed up-prod down-prod clean rebuild
+.PHONY: help up down migrate seed up-prod down-prod clean rebuild network
 
 help:
 	@echo "Usage: make [target]"
@@ -10,10 +10,11 @@ help:
 	@echo "  seed         Seed the database with sample data in the development environment"
 	@echo "  up-prod      Start the production environment"
 	@echo "  down-prod    Stop the production environment"
-	@echo "  clean        Stop and remove containers, networks, volumes, and images created by up and up-prod"
+	@echo "  clean        Stop and remove containers, volumes, and images created by up and up-prod"
 	@echo "  rebuild      Rebuild the development environment without using the cache"
+	@echo "  network      Create the common external network"
 
-up:
+up: network
 	docker-compose -f docker/docker-compose.dev.yml up -d
 
 down:
@@ -25,7 +26,7 @@ migrate:
 seed:
 	docker exec -i recovery_mysql_dev mysql recovery < docker/mysql/init/02_insert_sample_data.sql
 
-up-prod:
+up-prod: network
 	docker-compose -f docker/docker-compose.prod.yml up -d
 
 down-prod:
@@ -35,6 +36,9 @@ clean:
 	docker-compose -f docker/docker-compose.dev.yml down --volumes --remove-orphans
 	docker system prune -f --volumes
 
-rebuild: clean
+rebuild: clean network
 	docker-compose -f docker/docker-compose.dev.yml build --no-cache
 	docker-compose -f docker/docker-compose.dev.yml up -d
+
+network:
+	docker network create recovery-net || true

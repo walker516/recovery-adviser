@@ -1,0 +1,19 @@
+services:
+  client:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: recovery_client
+    volumes:
+      - ..:/app
+    working_dir: /app
+    environment:
+      - PYTHONUNBUFFERED=1
+      - API_BASE_URL=http://recovery_api_dev:8080
+    networks:
+      - recovery-net
+    command: /bin/bash
+
+networks:
+  recovery-net:
+    external: true

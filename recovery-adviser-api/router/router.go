@@ -34,6 +34,7 @@ func NewRouter(db *sql.DB) *echo.Echo {
 	e.GET("/part/:seppenbuban", partHandler.GetPartInfo)
 	e.GET("/recovery-job-status/:seppenbuban", jobHandler.GetRecoveryJobStatus)
 	e.GET("/job-queue/:process_order", jobHandler.GetJobQueue)
+	e.GET("/job-queue", jobHandler.GetJobQueue)
 	e.PUT("/job-queue/:process_order", jobHandler.UpdateJobQueue)
 	e.GET("/job-lock/:process_order", jobHandler.GetJobLock)
 	e.DELETE("/job-lock/:process_order", jobHandler.DeleteJobLock)

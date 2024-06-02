@@ -26,10 +26,11 @@ func (r *PartRepository) loadQuery(queryKey string) (string, error) {
 		return "", fmt.Errorf("failed to read query file: %v", err)
 	}
 
-	queries := strings.Split(string(data), ";")
+	queries := strings.Split(string(data), "--")
 	for _, query := range queries {
-		if strings.HasPrefix(query, "-- "+queryKey) {
-			return strings.TrimSpace(query[len(queryKey)+3:]), nil
+		query = strings.TrimSpace(query)
+		if strings.HasPrefix(query, queryKey) {
+			return strings.TrimSpace(query[len(queryKey):]), nil
 		}
 	}
 

@@ -6,48 +6,52 @@ recovery-adviser-api は、部品情報とジョブ情報を管理する。
 
 ```
 recovery-adviser-api/
+├── Makefile
 ├── README.md
 ├── cmd
-│   └── server
-│       └── main.go
+│   └── server
+│       └── main.go
 ├── config
-│   └── config.go
+│   └── config.go
 ├── config.dev.json
 ├── config.prod.json
-├── domain
-│   ├── job.go
-│   ├── part.go
-│   └── repository.go
 ├── docker
-│   ├── Dockerfile.dev
-│   ├── Dockerfile.prod
-│   ├── mysql
-│   │   └── init
-│   │       ├── 01_create_tables.sql
-│   │       └── 02_insert_sample_data.sql
-│   ├── docker-compose.dev.yml
-│   └── docker-compose.prod.yml
+│   ├── Dockerfile.dev
+│   ├── Dockerfile.prod
+│   ├── docker
+│   │   └── mysql
+│   │       └── init
+│   ├── docker-compose.dev.yml
+│   ├── docker-compose.prod.yml
+│   └── mysql
+│       └── init
+│           ├── 01_create_tables.sql
+│           └── 02_insert_sample_data.sql
+├── domain
+│   ├── job.go
+│   ├── part.go
+│   └── repository.go
 ├── go.mod
 ├── go.sum
 ├── infrastructure
-│   ├── database.go
-│   ├── repository
-│   │   ├── job_repository.go
-│   │   └── part_repository.go
-│   └── sql
-│       ├── mysql
-│       │   ├── job_queries.sql
-│       │   └── part_queries.sql
-│       └── oracle
-│           ├── job_queries.sql
-│           └── part_queries.sql
+│   ├── database.go
+│   └── repository
+│       ├── job_repository.go
+│       └── part_repository.go
 ├── interface
-│   ├── handler
-│   │   ├── job_handler.go
-│   │   └── part_handler.go
-│   └── response
+│   └── handler
+│       ├── job_handler.go
+│       ├── part_handler.go
+│       └── sysdate_handler.go
 ├── router
-│   └── router.go
+│   └── router.go
+├── sql
+│   ├── mysql
+│   │   ├── job_queries.sql
+│   │   └── part_queries.sql
+│   └── oracle
+│       ├── job_queries.sql
+│       └── part_queries.sql
 └── usecase
     ├── job_usecase.go
     └── part_usecase.go
@@ -151,11 +155,51 @@ go run cmd/server/main.go
 ### エンドポイント
 
 - `GET /part/:seppenbuban`: 部品情報を取得します。
+
+  ```sh
+  curl -X GET "http://localhost:8080/part/SEPPEN001"
+  ```
+
 - `GET /recovery-job-status/:seppenbuban`: リカバリージョブのステータスを取得します。
+
+  ```sh
+  curl -X GET "http://localhost:8080/recovery-job-status/SEPPEN001"
+  ```
+
 - `GET /job-queue/:process_order`: ジョブキューを取得します。
+
+  ```sh
+  curl -X GET "http://localhost:8080/job-queue/PO123"
+  ```
+
+- `GET /job-queue/:process_order`: ジョブキューを取得します。
+
+  ```sh
+  curl -X GET "http://localhost:8080/job-queue/P0123"
+  ```
+
+- `GET /job-queue?seppenbuban=:seppenbuban`: 部品番号でジョブキューを取得します。
+
+  ```sh
+  curl -X GET "http://localhost:8080/job-queue?seppenbuban=SEPPEN001"
+  ```
+
 - `PUT /job-queue/:process_order`: ジョブキューを更新します。
+
+  ```sh
+  curl -X PUT "http://localhost:8080/job-queue/PO123" -H "Content-Type: application/json" -d '{"status": "completed", "host": "host2"}'
+  ```
+
 - `GET /job-lock/:process_order`: ジョブロックを取得します。
+
+  ```sh
+  curl -X GET "http://localhost:8080/job-lock/PO123"
+  ```
+
 - `DELETE /job-lock/:process_order`: ジョブロックを削除します。
+  ```sh
+  curl -X DELETE "http://localhost:8080/job-lock/PO123"
+  ```
 
 ## 使用技術
 

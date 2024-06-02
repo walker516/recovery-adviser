@@ -40,7 +40,12 @@ func (jh *JobHandler) GetJobQueue(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Database query error: "+err.Error())
 	}
 	if jobQueue == nil {
-		return c.String(http.StatusNotFound, "No job queue information found for process order: " + processOrder + " and seppenbuban: " + seppenbuban)
+		if processOrder != "" && seppenbuban != "" {
+			return c.String(http.StatusBadRequest, "Both process order and seppenbuban are specified. Please specify only one.")
+		} else if processOrder == "" && seppenbuban == "" {
+			return c.String(http.StatusBadRequest, "Neither process order nor seppenbuban is specified. Please specify one.")
+		}
+		return c.String(http.StatusNotFound, "No job queue information found")
 	}
 
 	return c.JSON(http.StatusOK, jobQueue)
